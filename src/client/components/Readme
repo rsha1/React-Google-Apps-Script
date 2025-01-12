@@ -1,0 +1,17 @@
+DataSelection.jsx:
+
+Fetches the sheet names from the spreadsheet using serverFunctions.getSheetNames().
+Allows the user to select a sheet and a data range.
+Passes the selected data information to the parent component (App.jsx) using the onSelectData prop.
+ReportConfiguration.jsx:
+
+Provides inputs for configuring the report (currently, just start and end dates).
+Passes the configuration data to the parent component using the onConfigureReport prop.
+ReportDisplay.jsx:
+
+Displays the generated report data (if available).
+Includes the SaveToGoogleDrive component to allow users to save the report.
+SaveToGoogleDrive.jsx:
+
+Calls the saveReportToDrive server-side function to save the report to Google Drive.
+You'll need to implement the saveReportToDrive function in your serverFunctions.ts file.
