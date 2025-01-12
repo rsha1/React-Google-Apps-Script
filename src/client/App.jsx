@@ -1,22 +1,45 @@
+// src/client/App.jsx
 import React, { useState } from 'react';
+import DataSelection from './components/DataSelection';
+import ReportConfiguration from './components/ReportConfiguration';
+import ReportDisplay from './components/ReportDisplay';
 import Server from 'gas-client';
 
 const { serverFunctions } = new Server();
 
 function App() {
   const [reportData, setReportData] = useState(null);
+  const [selectedData, setSelectedData] = useState(null);
+  const [reportConfig, setReportConfig] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const handleDataSelect = (data) => {
+    setSelectedData(data);
+  };
+
+  const handleConfigureReport = (config) => {
+    setReportConfig(config);
+  };
+
   const generateReport = async () => {
+    if (!selectedData || !reportConfig) {
+      // Handle case where data or configuration is missing
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await serverFunctions.generateEcoReport(); // You might pass parameters here
+      const response = await serverFunctions.generateEcoReport({
+        // Pass selectedData and reportConfig to the server-side function
+        ...selectedData,
+        ...reportConfig,
+      });
       setReportData(response);
     } catch (err) {
-      setError(err); 
+      setError(err);
     } finally {
       setIsLoading(false);
     }
@@ -26,46 +49,8 @@ function App() {
     <div>
       <h1>Eco Report Generator</h1>
 
-      <button onClick={generateReport} disabled={isLoading}>
-        {isLoading ? 'Generating...' : 'Generate Report'}
-      </button>
-
-      {error && <div>Error: {error.message}</div>}
-
-      {reportData && (
-        <div dangerouslySetInnerHTML={{ __html: reportData }} /> 
-      )}
-    </div>
-  );
-}
-
-export default App;import React, { useState } from 'react';
-import Server from 'gas-client';
-
-const { serverFunctions } = new Server();
-
-function App() {
-  const [reportData, setReportData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const generateReport = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await serverFunctions.generateEcoReport(); // You might pass parameters here
-      setReportData(response);
-    } catch (err) {
-      setError(err); 
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div>
-      <h1>Eco Report Generator</h1>
+      <DataSelection onSelectData={handleDataSelect} />
+      <ReportConfiguration onConfigureReport={handleConfigureReport} />
 
       <button onClick={generateReport} disabled={isLoading}>
         {isLoading ? 'Generating...' : 'Generate Report'}
@@ -73,9 +58,7 @@ function App() {
 
       {error && <div>Error: {error.message}</div>}
 
-      {reportData && (
-        <div dangerouslySetInnerHTML={{ __html: reportData }} /> 
-      )}
+      <ReportDisplay reportData={reportData} />
     </div>
   );
 }
